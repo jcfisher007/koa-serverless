@@ -134,4 +134,4 @@ function KoaServerlessReady({
   return app;
 }
 
-exports.default = KoaServerlessReady;
+export default KoaServerlessReady;
