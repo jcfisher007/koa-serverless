@@ -1,0 +1,22 @@
+{
+  "name": "koa-serverless-ready",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcfisher007/koa-serverless-ready.git"
+  },
+  "author": "JC Fisher",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jcfisher007/koa-serverless-ready/issues"
+  },
+  "homepage": "https://github.com/jcfisher007/koa-serverless-ready#readme",
+  "peerDependencies": {
+    "koa": "^2.5.3"
+  }
+}
