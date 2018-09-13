@@ -8,14 +8,19 @@ import cors from "kcors";
 import helmet from "koa-helmet";
 import error from "koa-error";
 import roarr from "roarr";
-import logger from "./logger";
-import lambdaMiddleware from "./lambda";
+import defaultLogMiddleware from "./logger";
+import isLambda from "is-lambda";
+import lambdaMiddleware from "./lambdaWorkaround";
 
-export function KoaServerlessReady({
+const isNotBlank = o => {
+  return typeof o !== "undefined";
+};
+
+function KoaServerlessReady({
   log = roarr,
+  logger = roarr.child({ isLambda }),
   cookieName = "session",
   cookieMaxAge = 30 * 24 * 60 * 60 * 1000, // 30 days
-  isLambda = false,
   beforeMiddlewares = [],
   middlewares = [],
   sessionMiddleware,
@@ -25,6 +30,21 @@ export function KoaServerlessReady({
   corsMiddleware,
   loggerMiddleware
 }) {
+  let options = {
+    log,
+    logger,
+    cookieName,
+    cookieMaxAge,
+    beforeMiddlewares,
+    middlewares,
+    sessionMiddleware,
+    bodyParserMiddleware,
+    errorMiddleware,
+    securityMiddleware,
+    corsMiddleware,
+    loggerMiddleware
+  };
+
   // Initialize your koa-application.
   let app = new koa();
 
@@ -51,24 +71,21 @@ export function KoaServerlessReady({
   }
 
   // logger
-  app.use(loggerMiddleware ? loggerMiddleware : logger({ log }));
+  app.use(defaultLogMiddleware({ log }));
 
   // Add X-Response-Time header
   app.use(responseTime());
 
   // Enhance error handling.
-  app.use(errorMiddleware ? errorMiddleware : error());
+  app.use(isNotBlank(errorMiddleware) ? errorMiddleware : error());
 
   // register secure headers.
-  app.use(securityMiddleware ? securityMiddleware : helmet());
-
-  // assigns value to ctx.request.body
-  app.use(bodyParserMiddleware ? bodyParserMiddleware : bodyParser());
+  app.use(isNotBlank(securityMiddleware) ? securityMiddleware : helmet());
 
   // initialize user session via cookie
   app.keys = [process.env.SESSION_KEY];
   app.use(
-    sessionMiddleware
+    isNotBlank(sessionMiddleware)
       ? sessionMiddleware
       : session(
           {
@@ -80,33 +97,41 @@ export function KoaServerlessReady({
   );
 
   app.use(
-    corsMiddleware
+    isNotBlank(corsMiddleware)
       ? corsMiddleware
       : cors({
           origin: process.env.CORS_ORIGIN
         })
   );
 
+  // assigns value to ctx.request.body
+  app.use(
+    isNotBlank(bodyParserMiddleware) ? bodyParserMiddleware : bodyParser()
+  );
+
   middlewares.map(m => app.use(m));
+
+  app.options = options;
+  app.run = function() {
+    const logger = log.child({ isLambda });
+    const { info } = logger;
+    const serverlessApp = KoaServerlessReady(
+      Object.assign({ isLambda, app }, options)
+    );
+
+    if (isLambda) {
+      var LambdaHandler = require("./lambda").default;
+      info("start lambda");
+      return LambdaHandler({ app });
+    } else {
+      var ServerApp = require("./server").default;
+      let { port = 1234 } = options;
+      info({ port }, "start server");
+      return ServerApp({ app, port, logger });
+    }
+  };
 
   return app;
 }
 
-export function run(options = {}) {
-  const isLambda = require("is-lambda");
-  const log = require("roarr").default;
-  const logger = log.child({ isLambda });
-  const app = KoaServerlessReady(Object.assign({ isLambda, log }, options));
-
-  if (isLambda) {
-    var Handler = require("./lambda").default;
-    logger.info("start lambda");
-    exports.handler = LambdaHandler(app);
-  } else {
-    var ServerApp = require("./server").default;
-    const port = process.env.PORT || 1234;
-    ServerApp({ app, port });
-  }
-}
-
-export default options => run(options);
+exports.default = KoaServerlessReady;
