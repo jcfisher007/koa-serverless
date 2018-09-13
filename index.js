@@ -126,7 +126,7 @@ function KoaServerlessReady({
     } else {
       var ServerApp = require("./server").default;
       let { port = 1234 } = options;
-      info({ port }, "start server");
+      info(options, "start server");
       return ServerApp({ app, port, logger });
     }
   };
