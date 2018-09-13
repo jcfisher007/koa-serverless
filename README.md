@@ -1,0 +1,1 @@
+# koa-serverless-ready
