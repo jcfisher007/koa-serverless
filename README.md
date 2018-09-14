@@ -3,12 +3,12 @@
 A koajs distribution that focuses on:
 
 - serverless deployment (AWS)
-- local server dev tools
-- default ct.session middleware
+- standard nodejs deployment
+- default ctx.session middleware (koa-session)
 - default ctx.log middleware
 - default security header middleware (koa-helmet)
-- default cors middleware
-- default bodyParser middlware
+- default cors middleware (kcors)
+- default ctx.body middlware (koa-bodyparser)
 
 ## Usage
 
