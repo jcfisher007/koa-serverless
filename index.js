@@ -16,7 +16,7 @@ const isNotBlank = o => {
   return typeof o !== "undefined";
 };
 
-function KoaServerlessReady({
+function KoaServerlessApp({
   log = roarr,
   logger = roarr.child({ isLambda }),
   cookieName = "session",
@@ -35,14 +35,15 @@ function KoaServerlessReady({
     logger,
     cookieName,
     cookieMaxAge,
-    beforeMiddlewares,
-    middlewares,
+    afterHook = () => {},
+    beforeHook = () => {},
+    loggerMiddleware = defaultLogMiddleware({ log }),
+    timerMiddleware = responseTime(),
     sessionMiddleware,
     bodyParserMiddleware,
-    errorMiddleware,
-    securityMiddleware,
-    corsMiddleware,
-    loggerMiddleware
+    errorMiddleware = error(),
+    securityMiddleware = helmet(),
+    corsMiddleware
   };
 
   // Initialize your koa-application.
@@ -69,7 +70,7 @@ function KoaServerlessReady({
 
   trace("install customer beforeMiddlewares");
 
-  beforeMiddlewares.map(m => app.use(m));
+  beforeHook(app);
 
   trace("register default middleware");
 
@@ -79,16 +80,16 @@ function KoaServerlessReady({
   }
 
   // logger
-  app.use(defaultLogMiddleware({ log }));
+  app.use(loggerMiddleware);
 
   // Add X-Response-Time header
-  app.use(responseTime());
+  app.use(timerMiddleware);
 
   // Enhance error handling.
-  app.use(isNotBlank(errorMiddleware) ? errorMiddleware : error());
+  app.use(isNotBlank(errorMiddleware);
 
   // register secure headers.
-  app.use(isNotBlank(securityMiddleware) ? securityMiddleware : helmet());
+  app.use(isNotBlank(securityMiddleware );
 
   // initialize user session via cookie
   app.keys = [process.env.SESSION_KEY];
@@ -127,7 +128,7 @@ function KoaServerlessReady({
   app.run = function(isLambdaOverride = false) {
     trace("run");
 
-    const serverlessApp = KoaServerlessReady(
+    const serverlessApp = KoaServerlessApp(
       Object.assign({ isLambda, app }, options)
     );
 
@@ -143,7 +144,9 @@ function KoaServerlessReady({
     }
   };
 
+  afterHook(app);
+
   return app;
 }
 
-export default KoaServerlessReady;
+export default KoaServerlessApp;

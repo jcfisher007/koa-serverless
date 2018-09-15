@@ -1,6 +1,6 @@
 {
-  "name": "koa-serverless-ready",
-  "version": "0.0.7",
+  "name": "koa-serverless",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jcfisher007/koa-serverless-ready.git"
+    "url": "git+https://github.com/jcfisher007/koa-serverless.git"
   },
   "author": "JC Fisher",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jcfisher007/koa-serverless-ready/issues"
+    "url": "https://github.com/jcfisher007/koa-serverless/issues"
   },
-  "homepage": "https://github.com/jcfisher007/koa-serverless-ready#readme",
+  "homepage": "https://github.com/jcfisher007/koa-serverless#readme",
   "dependencies": {
     "aws-serverless-express": "^3.3.5",
     "is-lambda": "^1.0.1",

@@ -26,5 +26,5 @@ var app = new App();
 app.use(serve("./public"));
 
 // run program as daemon or export handler for lambda.
-exports.handler = app.run();
+export const handler = app.run();
 ```
