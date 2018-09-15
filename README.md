@@ -11,13 +11,26 @@ A koajs distribution that focuses on:
 - default cors middleware (kcors)
 - default body parser middlware (koa-bodyparser)
 
+## Install
+
+```sh
+npm install koa-serverless esm
+```
+
 ## Usage
 
 Runs only with esm enabled.
 
-```js
-// Run with node -r esm
+### index.js
 
+```js
+require = require("esm")(module);
+exports.handler = require("./run");
+```
+
+### run.js
+
+```js
 // drop in replacement for `koa`.
 import App from "koa-serverless";
 
@@ -31,5 +44,5 @@ var app = new App();
 app.use(serve("./public"));
 
 // run program as daemon or export handler for lambda.
-export const handler = app.run();
+exports = app.run(/* isLambdaOverride */);
 ```
