@@ -1,8 +1,8 @@
-# koa-serverless-ready
+# koa-serverless
 
 A koajs distribution that focuses on:
 
-- serverless deployment (AWS)
+- serverless deployment (AWS Gateway + Lambda)
 - standard nodejs deployment
 - default ctx.session middleware (koa-session)
 - default ctx.log middleware
