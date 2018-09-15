@@ -7,7 +7,8 @@ import bodyParser from "koa-bodyparser";
 import cors from "kcors";
 import helmet from "koa-helmet";
 import error from "koa-error";
-import roarr from "roarr";
+import log from "roarr";
+import qs from "koa-qs";
 import defaultErrorHandler from "./error";
 import defaultLogMiddleware from "./logger";
 import isLambda from "is-lambda";
@@ -15,12 +16,10 @@ import lambdaWorkaroundMiddleware from "./lambdaWorkaround";
 
 function KoaServerlessApp({
   port = process.env.PORT || 1234,
-  log = roarr,
-  logger = roarr.child({ isLambda }),
+  logger = log.child({ isLambda }),
   sessionKeys = [process.env.SESSION_KEY],
   cookieName = "session",
   cookieMaxAge = 30 * 24 * 60 * 60 * 1000, // 30 days
-  middlewares = [],
   sessionMiddleware,
   bodyParserMiddleware = bodyParser(),
   errorMiddleware = error(),
@@ -35,7 +34,6 @@ function KoaServerlessApp({
   afterHook = () => {}
 } = {}) {
   let options = {
-    log,
     logger,
     cookieName,
     cookieMaxAge,
@@ -53,11 +51,12 @@ function KoaServerlessApp({
 
   // Initialize your koa-application.
   let app = new koa();
-
   const { info, trace } = logger;
 
-  trace("add sensible error handling");
+  // Enable support for nested querystrings.
+  qs(app);
 
+  trace("beforeHook");
   beforeHook(app);
 
   // Add sensible error handling.
@@ -75,16 +74,16 @@ function KoaServerlessApp({
   // logger
   app.use(loggerMiddleware);
 
-  // Add X-Response-Time header
+  // Run timer middleware (koa-response-time).
   app.use(timerMiddleware);
 
-  // Enhance error handling.
+  // Enhance error handling (koa-error).
   app.use(errorMiddleware);
 
-  // register secure headers.
+  // register secure headers (koa-helmet).
   app.use(securityMiddleware);
 
-  // initialize user session via cookie
+  // initialize session state.
   app.keys = sessionKeys;
   app.use(
     typeof sessionMiddleware !== "undefined"
@@ -98,16 +97,11 @@ function KoaServerlessApp({
         )
   );
 
+  // install a corsMiddleware
   app.use(corsMiddleware);
 
-  // assigns value to ctx.request.body
+  // default ctx.request.body (koa-bodyparser)
   app.use(bodyParserMiddleware);
-
-  trace("register custom middleware");
-
-  middlewares.map(m => app.use(m));
-
-  app.options = options;
 
   app.handler = () => {
     var LambdaHandler = require("./lambda").default;
@@ -121,7 +115,7 @@ function KoaServerlessApp({
     return ServerApp({ app, port, logger });
   };
 
-  // the run fun
+  // the run function selects between serve and handler.
   app.run = function(isLambdaOverride = false) {
     trace("run");
     if (isLambdaOverride || isLambda) {
@@ -131,6 +125,7 @@ function KoaServerlessApp({
     }
   };
 
+  trace("afterHook");
   afterHook(app);
 
   return app;
