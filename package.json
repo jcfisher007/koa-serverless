@@ -1,6 +1,6 @@
 {
   "name": "koa-serverless",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "dist/index.js",
   "engines": {
@@ -23,6 +23,7 @@
   "homepage": "https://github.com/jcfisher007/koa-serverless#readme",
   "dependencies": {
     "aws-serverless-express": "^3.3.5",
+    "dotenv": "^6.0.0",
     "is-lambda": "^1.0.1",
     "kcors": "^2.2.2",
     "koa": "^2.5.3",
@@ -40,7 +41,6 @@
   },
   "devDependencies": {
     "@roarr/cli": "^1.0.0",
-    "dotenv": "^6.0.0",
     "esm": "^3.0.82",
     "koa-static": "^5.0.0"
   }
