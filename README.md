@@ -17,11 +17,7 @@ A koajs distribution that focuses on:
 npm install koa-serverless esm
 ```
 
-## Usage
-
-Runs only with esm enabled.
-
-### index.js
+## Example
 
 ```js
 // drop in replacement for `koa`.
