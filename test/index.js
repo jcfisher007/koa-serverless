@@ -11,4 +11,4 @@ var app = new App();
 app.use(serve("./public"));
 
 // run program as daemon or export handler for lambda.
-export const handler = app.run();
+export const handler = app.run(/* isLambdaOverride */);

@@ -14,7 +14,7 @@ A koajs distribution that focuses on:
 
 ```js
 // drop in replacement for `koa`.
-import App from "koa-serverless-ready";
+import App from "koa-serverless";
 
 // import your koa middleware.
 import serve from "koa-static";

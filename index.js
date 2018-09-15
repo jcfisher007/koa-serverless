@@ -8,41 +8,46 @@ import cors from "kcors";
 import helmet from "koa-helmet";
 import error from "koa-error";
 import roarr from "roarr";
+import defaultErrorHandler from "./error";
 import defaultLogMiddleware from "./logger";
 import isLambda from "is-lambda";
-import lambdaMiddleware from "./lambdaWorkaround";
-
-const isNotBlank = o => {
-  return typeof o !== "undefined";
-};
+import lambdaWorkaroundMiddleware from "./lambdaWorkaround";
 
 function KoaServerlessApp({
+  port = process.env.PORT || 1234,
   log = roarr,
   logger = roarr.child({ isLambda }),
+  sessionKeys = [process.env.SESSION_KEY],
   cookieName = "session",
   cookieMaxAge = 30 * 24 * 60 * 60 * 1000, // 30 days
-  beforeMiddlewares = [],
   middlewares = [],
   sessionMiddleware,
-  bodyParserMiddleware,
-  errorMiddleware,
-  securityMiddleware,
-  corsMiddleware,
-  loggerMiddleware
+  bodyParserMiddleware = bodyParser(),
+  errorMiddleware = error(),
+  securityMiddleware = helmet(),
+  corsMiddleware = cors({
+    origin: process.env.CORS_ORIGIN
+  }),
+  loggerMiddleware = defaultLogMiddleware({ log }),
+  timerMiddleware = responseTime(),
+  errorHandler = defaultErrorHandler,
+  beforeHook = () => {},
+  afterHook = () => {}
 } = {}) {
   let options = {
     log,
     logger,
     cookieName,
     cookieMaxAge,
-    afterHook = () => {},
-    beforeHook = () => {},
-    loggerMiddleware = defaultLogMiddleware({ log }),
-    timerMiddleware = responseTime(),
+    afterHook,
+    beforeHook,
+    loggerMiddleware,
+    timerMiddleware,
     sessionMiddleware,
     bodyParserMiddleware,
-    errorMiddleware = error(),
-    securityMiddleware = helmet(),
+    errorMiddleware,
+    securityMiddleware,
+    errorHandler,
     corsMiddleware
   };
 
@@ -53,30 +58,18 @@ function KoaServerlessApp({
 
   trace("add sensible error handling");
 
-  // Add sensible error handling.
-  app.on("error", (err, ctx) => {
-    const { message, statusCode, stack } = err;
-    let func = statusCode >= 500 ? ctx.log.fatal : ctx.log.error;
+  beforeHook(app);
 
-    func(
-      {
-        statusCode,
-        message,
-        stack
-      },
-      statusCode >= 500 ? "server error" : "client error"
-    );
-  });
+  // Add sensible error handling.
+  app.on("error", errorHandler);
 
   trace("install customer beforeMiddlewares");
-
-  beforeHook(app);
 
   trace("register default middleware");
 
   // handle requests from lambda
   if (isLambda) {
-    app.use(lambdaMiddleware);
+    app.use(lambdaWorkaroundMiddleware);
   }
 
   // logger
@@ -86,15 +79,15 @@ function KoaServerlessApp({
   app.use(timerMiddleware);
 
   // Enhance error handling.
-  app.use(isNotBlank(errorMiddleware);
+  app.use(errorMiddleware);
 
   // register secure headers.
-  app.use(isNotBlank(securityMiddleware );
+  app.use(securityMiddleware);
 
   // initialize user session via cookie
-  app.keys = [process.env.SESSION_KEY];
+  app.keys = sessionKeys;
   app.use(
-    isNotBlank(sessionMiddleware)
+    typeof sessionMiddleware !== "undefined"
       ? sessionMiddleware
       : session(
           {
@@ -105,18 +98,10 @@ function KoaServerlessApp({
         )
   );
 
-  app.use(
-    isNotBlank(corsMiddleware)
-      ? corsMiddleware
-      : cors({
-          origin: process.env.CORS_ORIGIN
-        })
-  );
+  app.use(corsMiddleware);
 
   // assigns value to ctx.request.body
-  app.use(
-    isNotBlank(bodyParserMiddleware) ? bodyParserMiddleware : bodyParser()
-  );
+  app.use(bodyParserMiddleware);
 
   trace("register custom middleware");
 
@@ -124,23 +109,25 @@ function KoaServerlessApp({
 
   app.options = options;
 
+  app.handler = () => {
+    var LambdaHandler = require("./lambda").default;
+    trace("start lambda");
+    return LambdaHandler({ app });
+  };
+
+  app.serve = (err, cb) => {
+    var ServerApp = require("./server").default;
+    trace(options, "start server");
+    return ServerApp({ app, port, logger });
+  };
+
   // the run fun
   app.run = function(isLambdaOverride = false) {
     trace("run");
-
-    const serverlessApp = KoaServerlessApp(
-      Object.assign({ isLambda, app }, options)
-    );
-
     if (isLambdaOverride || isLambda) {
-      var LambdaHandler = require("./lambda").default;
-      info("start lambda");
-      return LambdaHandler({ app });
+      return app.handler();
     } else {
-      var ServerApp = require("./server").default;
-      let { port = 1234 } = options;
-      info(options, "start server");
-      return ServerApp({ app, port, logger });
+      return app.serve();
     }
   };
 

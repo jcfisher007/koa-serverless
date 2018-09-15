@@ -1,14 +1,13 @@
-export default function ServerApp(options) {
+export default function ServerApp(options, listenCallback) {
   const { app, port, logger } = options;
 
-  app.listen(port, function(err, result) {
+  function defaultListenCallback(err, result) {
     if (err) {
       logger.fatal("ERROR: " + err);
     }
 
-    logger.info(
-      { NODE_ENV: process.env.NODE_ENV },
-      "Listening on port: " + port
-    );
-  });
+    logger.info({ port, NODE_ENV: process.env.NODE_ENV }, "Listening on port");
+  }
+
+  app.listen(port, listenCallback || defaultListenCallback);
 }
