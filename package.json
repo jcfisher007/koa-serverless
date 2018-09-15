@@ -1,9 +1,11 @@
 {
   "name": "koa-serverless",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
-  "engines" : { "node" : ">=7.6.0" },
+  "engines": {
+    "node": ">=7.6.0"
+  },
   "scripts": {
     "build": "rollup -c  | babel > dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -29,8 +31,10 @@
     "koa-helmet": "^4.0.0",
     "koa-qs": "^2.0.0",
     "koa-response-time": "^2.0.0",
+    "koa-roarr": "^0.0.5",
     "koa-session": "^5.9.0",
     "roarr": "^2.11.0",
+    "serverless-http": "^1.6.0",
     "uuid": "^3.3.2",
     "whatwg-url": "^7.0.0"
   },

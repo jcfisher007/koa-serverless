@@ -1,5 +1,8 @@
 "use strict";
 
+import { config } from "dotenv";
+config();
+
 import koa from "koa";
 import responseTime from "koa-response-time";
 import session from "koa-session";
@@ -10,13 +13,13 @@ import error from "koa-error";
 import log from "roarr";
 import qs from "koa-qs";
 import defaultErrorHandler from "./error";
-import defaultLogMiddleware from "./logger";
+import defaultLogMiddleware from "koa-roarr";
 import isLambda from "is-lambda";
-import lambdaWorkaroundMiddleware from "./lambdaWorkaround";
-import LambdaHandler from "./lambda";
+import defaultServerless from "serverless-http";
 import ServerApp from "./server";
 
 function KoaServerlessApp({
+  serverless = defaultServerless,
   port = process.env.PORT || 1234,
   logger = log.child({ isLambda }),
   sessionKeys = [process.env.SESSION_KEY],
@@ -55,6 +58,8 @@ function KoaServerlessApp({
   let app = new koa();
   const { info, trace } = logger;
 
+  app.port = port;
+
   // Enable support for nested querystrings.
   qs(app);
 
@@ -67,11 +72,6 @@ function KoaServerlessApp({
   trace("install customer beforeMiddlewares");
 
   trace("register default middleware");
-
-  // handle requests from lambda
-  if (isLambda) {
-    app.use(lambdaWorkaroundMiddleware);
-  }
 
   // logger
   app.use(loggerMiddleware);
@@ -107,10 +107,10 @@ function KoaServerlessApp({
 
   app.handler = () => {
     trace("start lambda");
-    return LambdaHandler({ app });
+    return serverless(app);
   };
 
-  app.serve = (err, cb) => {
+  app.serve = cb => {
     trace(options, "start server");
     return ServerApp({ app, port, logger });
   };

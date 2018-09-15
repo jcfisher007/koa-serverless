@@ -3,18 +3,20 @@ export default {
   entry: "index.js",
   format: "cjs",
   external: [
+    "dotenv",
     "koa",
     "koa-error",
     "koa-helmet",
     "koa-response-time",
     "koa-session",
     "koa-bodyparser",
+    "koa-roarr",
     "kcors",
+    "koa-qs",
     "is-lambda",
     "roarr",
-    "koa-qs",
+    "serverless-http",
     "uuid/v4",
-    "whatwg-url",
-    "aws-serverless-express"
+    "whatwg-url"
   ]
 };

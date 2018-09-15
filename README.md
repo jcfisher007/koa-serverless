@@ -1,15 +1,17 @@
 # koa-serverless
 
-A koajs distribution that focuses on:
+A koajs bundle including:
 
-- serverless deployment (AWS Gateway + Lambda)
-- standard nodejs deployment
-- default nested querystring support
-- default session middleware (koa-session)
-- default log middleware
-- default security header middleware (koa-helmet)
-- default cors middleware (kcors)
-- default body parser middlware (koa-bodyparser)
+- Serverless Support ([serverless-http](https://github.com/dougmoscrop/serverless-http))
+- load .env file ([dotenv](https://github.com/motdotla/dotenv))
+- nested querystring support ([qs](https://github.com/ljharb/qs))
+- session management ([koa-session](https://github.com/koajs/session))
+- logging ([koa-roarr](https://github.com/jcfisher007/koa-roarr))
+- security headers ([koa-helmet](https://github.com/venables/koa-helmet))
+- cors ([kcors](https://github.com/koajs/cors))
+- body parser ([koa-bodyparser](https://github.com/koajs/bodyparser))
+
+Make koajs applications with minimal boilerplate.
 
 ## Install
 
@@ -22,7 +24,7 @@ npm install koa-serverless
 ```js
 // drop in replacement for `koa`.
 var App = require("koa-serverless");
-var app = new App();
+var app = new App();This will give you the basic mechanisms to
 
 // add your own middleware
 var serve = require("koa-static");
