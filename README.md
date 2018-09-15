@@ -14,7 +14,7 @@ A koajs distribution that focuses on:
 ## Install
 
 ```sh
-npm install koa-serverless esm
+npm install koa-serverless
 ```
 
 ## Example
