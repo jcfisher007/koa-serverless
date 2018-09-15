@@ -4,15 +4,20 @@ A koajs distribution that focuses on:
 
 - serverless deployment (AWS Gateway + Lambda)
 - standard nodejs deployment
-- default ctx.session middleware (koa-session)
-- default ctx.log middleware
+- default nested querystring support
+- default session middleware (koa-session)
+- default log middleware
 - default security header middleware (koa-helmet)
 - default cors middleware (kcors)
-- default ctx.body middlware (koa-bodyparser)
+- default body parser middlware (koa-bodyparser)
 
 ## Usage
 
+Runs only with esm enabled.
+
 ```js
+// Run with node -r esm
+
 // drop in replacement for `koa`.
 import App from "koa-serverless";
 
