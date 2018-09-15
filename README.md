@@ -13,10 +13,18 @@ A koajs distribution that focuses on:
 ## Usage
 
 ```js
+// drop in replacement for `koa`.
 import App from "koa-serverless-ready";
+
+// import your koa middleware.
 import serve from "koa-static";
 
-var app = App({ middlewares: [serve("./public")] });
+// create your application.
+var app = new App();
+
+// add your own middleware
+app.use(serve("./public"));
+
 // run program as daemon or export handler for lambda.
 exports.handler = app.run();
 ```

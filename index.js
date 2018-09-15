@@ -29,7 +29,7 @@ function KoaServerlessReady({
   securityMiddleware,
   corsMiddleware,
   loggerMiddleware
-}) {
+} = {}) {
   let options = {
     log,
     logger,
@@ -48,6 +48,10 @@ function KoaServerlessReady({
   // Initialize your koa-application.
   let app = new koa();
 
+  const { info, trace } = logger;
+
+  trace("add sensible error handling");
+
   // Add sensible error handling.
   app.on("error", (err, ctx) => {
     const { message, statusCode, stack } = err;
@@ -63,7 +67,11 @@ function KoaServerlessReady({
     );
   });
 
+  trace("install customer beforeMiddlewares");
+
   beforeMiddlewares.map(m => app.use(m));
+
+  trace("register default middleware");
 
   // handle requests from lambda
   if (isLambda) {
@@ -109,17 +117,21 @@ function KoaServerlessReady({
     isNotBlank(bodyParserMiddleware) ? bodyParserMiddleware : bodyParser()
   );
 
+  trace("register custom middleware");
+
   middlewares.map(m => app.use(m));
 
   app.options = options;
-  app.run = function() {
-    const logger = log.child({ isLambda });
-    const { info } = logger;
+
+  // the run fun
+  app.run = function(isLambdaOverride = false) {
+    trace("run");
+
     const serverlessApp = KoaServerlessReady(
       Object.assign({ isLambda, app }, options)
     );
 
-    if (isLambda) {
+    if (isLambdaOverride || isLambda) {
       var LambdaHandler = require("./lambda").default;
       info("start lambda");
       return LambdaHandler({ app });
