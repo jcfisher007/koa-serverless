@@ -24,25 +24,14 @@ Runs only with esm enabled.
 ### index.js
 
 ```js
-require = require("esm")(module);
-exports.handler = require("./run");
-```
-
-### run.js
-
-```js
 // drop in replacement for `koa`.
-import App from "koa-serverless";
-
-// import your koa middleware.
-import serve from "koa-static";
-
-// create your application.
+var App = require("koa-serverless");
 var app = new App();
 
 // add your own middleware
+var serve = require("koa-static");
 app.use(serve("./public"));
 
 // run program as daemon or export handler for lambda.
-exports = app.run(/* isLambdaOverride */);
+exports.handler = app.run(/* isLambdaOverride */);
 ```

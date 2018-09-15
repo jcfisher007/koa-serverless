@@ -13,6 +13,8 @@ import defaultErrorHandler from "./error";
 import defaultLogMiddleware from "./logger";
 import isLambda from "is-lambda";
 import lambdaWorkaroundMiddleware from "./lambdaWorkaround";
+import LambdaHandler from "./lambda";
+import ServerApp from "./server";
 
 function KoaServerlessApp({
   port = process.env.PORT || 1234,
@@ -104,13 +106,11 @@ function KoaServerlessApp({
   app.use(bodyParserMiddleware);
 
   app.handler = () => {
-    var LambdaHandler = require("./lambda").default;
     trace("start lambda");
     return LambdaHandler({ app });
   };
 
   app.serve = (err, cb) => {
-    var ServerApp = require("./server").default;
     trace(options, "start server");
     return ServerApp({ app, port, logger });
   };
