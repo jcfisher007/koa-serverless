@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/jcfisher007/koa-serverless-ready#readme",
   "dependencies": {
+    "aws-serverless-express": "^3.3.5",
     "is-lambda": "^1.0.1",
     "kcors": "^2.2.2",
     "koa": "^2.5.3",
