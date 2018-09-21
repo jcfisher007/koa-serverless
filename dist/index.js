@@ -4,7 +4,6 @@ function _interopDefault(ex) {
   return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
 }
 
-var dotenv = require('dotenv');
 var koa = _interopDefault(require('koa'));
 var responseTime = _interopDefault(require('koa-response-time'));
 var session = _interopDefault(require('koa-session'));
@@ -41,8 +40,6 @@ function ServerApp(options, listenCallback) {
 
   app.listen(port, listenCallback || defaultListenCallback);
 }
-
-dotenv.config();
 
 function KoaServerlessApp({
   serverless = defaultServerless,

@@ -1,6 +1,6 @@
 {
   "name": "koa-serverless",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "",
   "main": "dist/index.js",
   "engines": {
@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/jcfisher007/koa-serverless#readme",
   "dependencies": {
-    "dotenv": "^6.0.0",
     "is-lambda": "^1.0.1",
     "koa": "^2.5.3",
     "koa-bodyparser": "^4.2.1",
@@ -33,9 +32,7 @@
     "koa-roarr": "^0.0.5",
     "koa-session": "^5.9.0",
     "roarr": "^2.11.0",
-    "serverless-http": "^1.6.0",
-    "uuid": "^3.3.2",
-    "whatwg-url": "^7.0.0"
+    "serverless-http": "^1.6.0"
   },
   "devDependencies": {
     "@roarr/cli": "^1.0.0",

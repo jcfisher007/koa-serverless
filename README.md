@@ -3,7 +3,6 @@
 A koajs bundle including:
 
 - Serverless Support ([serverless-http](https://github.com/dougmoscrop/serverless-http))
-- load .env file ([dotenv](https://github.com/motdotla/dotenv))
 - nested querystring support ([qs](https://github.com/ljharb/qs))
 - session management ([koa-session](https://github.com/koajs/session))
 - logging ([koa-roarr](https://github.com/jcfisher007/koa-roarr))

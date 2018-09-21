@@ -3,7 +3,6 @@ export default {
   entry: "index.js",
   format: "cjs",
   external: [
-    "dotenv",
     "koa",
     "koa-error",
     "koa-helmet",
@@ -11,12 +10,10 @@ export default {
     "koa-session",
     "koa-bodyparser",
     "koa-roarr",
-    "kcors",
     "koa-qs",
     "is-lambda",
     "roarr",
     "serverless-http",
-    "uuid/v4",
-    "whatwg-url"
+    "uuid/v4"
   ]
 };

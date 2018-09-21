@@ -1,8 +1,5 @@
 "use strict";
 
-import { config } from "dotenv";
-config();
-
 import koa from "koa";
 import responseTime from "koa-response-time";
 import session from "koa-session";
