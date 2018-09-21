@@ -1,21 +1,48 @@
-"use strict";
+'use strict';
 
-import { config } from "dotenv";
-config();
+function _interopDefault(ex) {
+  return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
+}
 
-import koa from "koa";
-import responseTime from "koa-response-time";
-import session from "koa-session";
-import bodyParser from "koa-bodyparser";
-import helmet from "koa-helmet";
-import error from "koa-error";
-import log from "roarr";
-import qs from "koa-qs";
-import defaultErrorHandler from "./error";
-import defaultLogMiddleware from "koa-roarr";
-import isLambda from "is-lambda";
-import defaultServerless from "serverless-http";
-import ServerApp from "./server";
+var dotenv = require('dotenv');
+var koa = _interopDefault(require('koa'));
+var responseTime = _interopDefault(require('koa-response-time'));
+var session = _interopDefault(require('koa-session'));
+var bodyParser = _interopDefault(require('koa-bodyparser'));
+var helmet = _interopDefault(require('koa-helmet'));
+var error = _interopDefault(require('koa-error'));
+var log = _interopDefault(require('roarr'));
+var qs = _interopDefault(require('koa-qs'));
+var defaultLogMiddleware = _interopDefault(require('koa-roarr'));
+var isLambda = _interopDefault(require('is-lambda'));
+var defaultServerless = _interopDefault(require('serverless-http'));
+
+var defaultErrorHandler = (err, ctx) => {
+  const { message, statusCode, stack } = err;
+  let func = statusCode >= 500 ? ctx.log.fatal : ctx.log.error;
+
+  func({
+    statusCode,
+    message,
+    stack
+  }, statusCode >= 500 ? "server error" : "client error");
+};
+
+function ServerApp(options, listenCallback) {
+  const { app, port, logger } = options;
+
+  function defaultListenCallback(err, result) {
+    if (err) {
+      logger.fatal("ERROR: " + err);
+    }
+
+    logger.info({ port, NODE_ENV: process.env.NODE_ENV }, "Listening on port");
+  }
+
+  app.listen(port, listenCallback || defaultListenCallback);
+}
+
+dotenv.config();
 
 function KoaServerlessApp({
   serverless = defaultServerless,
@@ -90,17 +117,10 @@ function KoaServerlessApp({
 
   // initialize session state.
   app.keys = sessionKeys;
-  app.use(
-    typeof sessionMiddleware !== "undefined"
-      ? sessionMiddleware
-      : session(
-          {
-            key: cookieName,
-            maxAge: cookieMaxAge
-          },
-          app
-        )
-  );
+  app.use(typeof sessionMiddleware !== "undefined" ? sessionMiddleware : session({
+    key: cookieName,
+    maxAge: cookieMaxAge
+  }, app));
 
   trace("register bodyParserMiddleware");
 
@@ -118,7 +138,7 @@ function KoaServerlessApp({
   };
 
   // the run function selects between serve and handler.
-  app.run = function(isLambdaOverride = false) {
+  app.run = function (isLambdaOverride = false) {
     trace(options, "run lambda");
     if (isLambdaOverride || isLambda) {
       return app.handler();
@@ -133,4 +153,5 @@ function KoaServerlessApp({
   return app;
 }
 
-export default KoaServerlessApp;
+module.exports = KoaServerlessApp;
+
