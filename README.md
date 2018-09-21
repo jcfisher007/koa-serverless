@@ -8,7 +8,6 @@ A koajs bundle including:
 - session management ([koa-session](https://github.com/koajs/session))
 - logging ([koa-roarr](https://github.com/jcfisher007/koa-roarr))
 - security headers ([koa-helmet](https://github.com/venables/koa-helmet))
-- cors ([kcors](https://github.com/koajs/cors))
 - body parser ([koa-bodyparser](https://github.com/koajs/bodyparser))
 
 Make koajs applications with minimal boilerplate.
