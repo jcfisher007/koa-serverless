@@ -41,40 +41,30 @@ function ServerApp(options, listenCallback) {
   app.listen(port, listenCallback || defaultListenCallback);
 }
 
-function KoaServerlessApp({
-  serverless = defaultServerless,
-  port = process.env.PORT || 1234,
-  logger = log.child({}),
-  sessionKeys = [process.env.SESSION_KEY],
-  cookieName = "session",
-  cookieMaxAge = 30 * 24 * 60 * 60 * 1000, // 30 days
-  sessionMiddleware,
-  bodyParserMiddleware = bodyParser(),
-  errorMiddleware = error(),
-  securityMiddleware = helmet(),
-  loggerMiddleware = defaultLogMiddleware({ log }),
-  timerMiddleware = responseTime(),
-  errorHandler = defaultErrorHandler,
-  beforeHook = () => {},
-  afterHook = () => {}
-} = {}) {
-  let options = {
-    logger,
-    cookieName,
-    cookieMaxAge,
-    afterHook,
-    beforeHook,
-    loggerMiddleware,
-    timerMiddleware,
-    sessionMiddleware,
-    bodyParserMiddleware,
-    errorMiddleware,
-    securityMiddleware,
-    errorHandler
-  };
-
+function KoaServerlessApp(options = {}) {
   // Initialize your koa-application.
   let app = new koa();
+
+  let {
+    serverless = defaultServerless,
+    port = process.env.PORT || 1234,
+    logger = log.child({}),
+    sessionKeys = [process.env.SESSION_KEY],
+    sessionOpts = {
+      key: "session",
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    },
+    sessionMiddleware = session(sessionOpts, app),
+    bodyParserMiddleware = bodyParser(),
+    errorMiddleware = error(),
+    securityMiddleware = helmet(),
+    loggerMiddleware = defaultLogMiddleware({ log }),
+    timerMiddleware = responseTime(),
+    errorHandler = defaultErrorHandler,
+    beforeHook = () => {},
+    afterHook = () => {}
+  } = options;
+
   const { info, trace } = logger;
 
   trace({ isLambda }, "start");
@@ -114,10 +104,7 @@ function KoaServerlessApp({
 
   // initialize session state.
   app.keys = sessionKeys;
-  app.use(typeof sessionMiddleware !== "undefined" ? sessionMiddleware : session({
-    key: cookieName,
-    maxAge: cookieMaxAge
-  }, app));
+  app.use(sessionMiddleware);
 
   trace("register bodyParserMiddleware");
 
@@ -136,7 +123,6 @@ function KoaServerlessApp({
 
   // the run function selects between serve and handler.
   app.run = function (isLambdaOverride = false) {
-    trace(options, "run lambda");
     if (isLambdaOverride || isLambda) {
       return app.handler();
     } else {
