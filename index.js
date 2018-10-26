@@ -19,9 +19,11 @@ function KoaServerlessApp({
   port = process.env.PORT || 1234,
   logger = log.child({}),
   sessionKeys = [process.env.SESSION_KEY],
-  cookieName = "session",
-  cookieMaxAge = 30 * 24 * 60 * 60 * 1000, // 30 days
   sessionMiddleware,
+  sessionOpts = {
+    key: "session",
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  },
   bodyParserMiddleware = bodyParser(),
   errorMiddleware = error(),
   securityMiddleware = helmet(),
@@ -90,13 +92,7 @@ function KoaServerlessApp({
   app.use(
     typeof sessionMiddleware !== "undefined"
       ? sessionMiddleware
-      : session(
-          {
-            key: cookieName,
-            maxAge: cookieMaxAge
-          },
-          app
-        )
+      : session(sessionOpts, app)
   );
 
   trace("register bodyParserMiddleware");
