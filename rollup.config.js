@@ -1,7 +1,11 @@
 // rollup.config.js
 export default {
-  entry: "index.js",
-  format: "cjs",
+  input: "index.js",
+  output: {
+    file: 'dist/index.js',
+    format: 'cjs',
+    exports: "auto"
+  },
   external: [
     "koa",
     "koa-error",

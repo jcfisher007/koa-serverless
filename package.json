@@ -1,14 +1,14 @@
 {
   "name": "koa-serverless",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "",
   "main": "dist/index.js",
   "engines": {
     "node": ">=7.6.0"
   },
   "scripts": {
-    "build": "rollup -c  | babel > dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c  | babel --no-babelrc >  dist/index.js",
+    "test": "cd test; ROARR_LOG=true node -r esm index",
     "start": "cd test; ROARR_LOG=true node -r esm index"
   },
   "repository": {
@@ -27,7 +27,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-error": "^3.2.0",
     "koa-helmet": "^4.0.0",
-    "koa-qs": "^2.0.0",
+    "koa-qs": "^3.0.0",
     "koa-response-time": "^2.0.0",
     "koa-roarr": "^1.1.0",
     "koa-session": "^5.9.0",
@@ -35,8 +35,11 @@
     "serverless-http": "^1.6.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.5",
     "@roarr/cli": "^1.0.0",
     "esm": "^3.0.82",
-    "koa-static": "^5.0.0"
+    "koa-static": "^5.0.0",
+    "rollup": "^2.56.3"
   }
 }

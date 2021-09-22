@@ -1,30 +1,43 @@
 'use strict';
 
-function _interopDefault(ex) {
-  return ex && typeof ex === 'object' && 'default' in ex ? ex['default'] : ex;
-}
+var koa = require('koa');
+var responseTime = require('koa-response-time');
+var session = require('koa-session');
+var bodyParser = require('koa-bodyparser');
+var helmet = require('koa-helmet');
+var error = require('koa-error');
+var log = require('roarr');
+var qs = require('koa-qs');
+var defaultLogMiddleware = require('koa-roarr');
+var isLambda = require('is-lambda');
+var defaultServerless = require('serverless-http');
 
-var koa = _interopDefault(require('koa'));
-var responseTime = _interopDefault(require('koa-response-time'));
-var session = _interopDefault(require('koa-session'));
-var bodyParser = _interopDefault(require('koa-bodyparser'));
-var helmet = _interopDefault(require('koa-helmet'));
-var error = _interopDefault(require('koa-error'));
-var log = _interopDefault(require('roarr'));
-var qs = _interopDefault(require('koa-qs'));
-var defaultLogMiddleware = _interopDefault(require('koa-roarr'));
-var isLambda = _interopDefault(require('is-lambda'));
-var defaultServerless = _interopDefault(require('serverless-http'));
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var koa__default = /*#__PURE__*/_interopDefaultLegacy(koa);
+var responseTime__default = /*#__PURE__*/_interopDefaultLegacy(responseTime);
+var session__default = /*#__PURE__*/_interopDefaultLegacy(session);
+var bodyParser__default = /*#__PURE__*/_interopDefaultLegacy(bodyParser);
+var helmet__default = /*#__PURE__*/_interopDefaultLegacy(helmet);
+var error__default = /*#__PURE__*/_interopDefaultLegacy(error);
+var log__default = /*#__PURE__*/_interopDefaultLegacy(log);
+var qs__default = /*#__PURE__*/_interopDefaultLegacy(qs);
+var defaultLogMiddleware__default = /*#__PURE__*/_interopDefaultLegacy(defaultLogMiddleware);
+var isLambda__default = /*#__PURE__*/_interopDefaultLegacy(isLambda);
+var defaultServerless__default = /*#__PURE__*/_interopDefaultLegacy(defaultServerless);
 
 var defaultErrorHandler = (err, ctx) => {
   const { message, statusCode, stack } = err;
   let func = statusCode >= 500 ? ctx.log.fatal : ctx.log.error;
 
-  func({
-    statusCode,
-    message,
-    stack
-  }, statusCode >= 500 ? "server error" : "client error");
+  func(
+    {
+      statusCode,
+      message,
+      stack
+    },
+    statusCode >= 500 ? "server error" : "client error"
+  );
 };
 
 function ServerApp(options, listenCallback) {
@@ -43,23 +56,23 @@ function ServerApp(options, listenCallback) {
 
 function KoaServerlessApp(options = {}) {
   // Initialize your koa-application.
-  let app = new koa();
+  let app = new koa__default['default']();
 
   let {
-    serverless = defaultServerless,
+    serverless = defaultServerless__default['default'],
     port = process.env.PORT || 1234,
-    logger = log.child({}),
+    logger = log__default['default'].child({}),
     sessionKeys = [process.env.SESSION_KEY],
     sessionOpts = {
       key: "session",
       maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     },
-    sessionMiddleware = session(sessionOpts, app),
-    bodyParserMiddleware = bodyParser(),
-    errorMiddleware = error(),
-    securityMiddleware = helmet(),
-    loggerMiddleware = defaultLogMiddleware({ log }),
-    timerMiddleware = responseTime(),
+    sessionMiddleware = session__default['default'](sessionOpts, app),
+    bodyParserMiddleware = bodyParser__default['default'](),
+    errorMiddleware = error__default['default'](),
+    securityMiddleware = helmet__default['default'](),
+    loggerMiddleware = defaultLogMiddleware__default['default']({ log: log__default['default'] }),
+    timerMiddleware = responseTime__default['default'](),
     errorHandler = defaultErrorHandler,
     beforeHook = () => {},
     afterHook = () => {}
@@ -67,12 +80,12 @@ function KoaServerlessApp(options = {}) {
 
   const { info, trace } = logger;
 
-  trace({ isLambda }, "start");
+  trace({ isLambda: isLambda__default['default'] }, "start");
 
   app.port = port;
 
   // Enable support for nested querystrings.
-  qs(app);
+  qs__default['default'](app);
 
   trace("beforeHook");
   beforeHook(app);
@@ -122,8 +135,8 @@ function KoaServerlessApp(options = {}) {
   };
 
   // the run function selects between serve and handler.
-  app.run = function (isLambdaOverride = false) {
-    if (isLambdaOverride || isLambda) {
+  app.run = function(isLambdaOverride = false) {
+    if (isLambdaOverride || isLambda__default['default']) {
       return app.handler();
     } else {
       return app.serve();
@@ -137,4 +150,3 @@ function KoaServerlessApp(options = {}) {
 }
 
 module.exports = KoaServerlessApp;
-
